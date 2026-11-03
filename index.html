@@ -495,6 +495,65 @@ h2 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
+/* 答え一覧の詳細表示 */
+.answer-detail-overlay {
+  position: fixed;
+  z-index: 9999;
+
+  width: min(320px, calc(100vw - 24px));
+  max-height: calc(100vh - 24px);
+  overflow-y: auto;
+
+  background: #1b202c;
+  border: 2px solid #DDC37C;
+  border-radius: 14px;
+  padding: 14px;
+
+  box-shadow: 0 10px 40px rgba(0, 0, 0, .8);
+}
+
+/* 詳細の問題文 */
+.answer-detail-question {
+  color: #f2f3f5;
+  font-size: 14px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin-bottom: 12px;
+}
+
+/* 詳細の画像 */
+.answer-detail-image {
+  width: 100%;
+  max-height: 250px;
+  object-fit: contain;
+  display: block;
+  border-radius: 10px;
+  background: #10131b;
+}
+
+/* 詳細の名前 */
+.answer-detail-name {
+  color: #DDC37C;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  overflow-wrap: anywhere;
+  margin-top: 10px;
+}
+
+/* 詳細の閉じるボタン */
+.answer-detail-close {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 8px;
+
+  background: #252c3a;
+  color: #f2f3f5;
+  border: 1px solid #343c4c;
+  border-radius: 8px;
+}
 </style>
 </head>
 
@@ -645,11 +704,16 @@ h2 {
   <section id="answersScreen" class="hidden">
     <div class="panel">
       <div class="section-title">
-        <h2>NPCの答え一覧</h2>
-        <button class="btn small" id="backToResultButton">
-          結果に戻る
-        </button>
-      </div>
+  <h2>NPCの答え一覧</h2>
+  <button class="btn small" id="backToResultButton">
+    結果に戻る
+  </button>
+</div>
+
+<p class="subtitle">
+  キャラをタップすると、問題文・画像・名前が表示されます。
+  画面のどこかをタップすると閉じます。
+</p>
 
       <div class="answer-list-grid" id="answerListGrid"></div>
 
@@ -1364,11 +1428,15 @@ document.getElementById("answersTitleButton").addEventListener("click", function
 function renderAnswerList() {
   answerListGrid.innerHTML = "";
 
+  // 詳細表示が残っていたら削除
+  closeAnswerDetail();
+
   npcData.forEach(npc => {
     const answered = game.correct.includes(npc.id);
 
     const card = document.createElement("div");
     card.className = "answer-list-card";
+    card.style.cursor = "pointer";
 
     if (npc.image) {
       const img = document.createElement("img");
@@ -1387,10 +1455,141 @@ function renderAnswerList() {
     name.textContent = npc.name;
 
     card.appendChild(name);
+
+    // キャラをタップすると詳細を開閉
+    card.addEventListener("click", function(event) {
+      event.stopPropagation();
+
+      // 同じキャラを再タップしたら閉じる
+      if (
+        answerDetailOverlay &&
+        answerDetailOverlay.dataset.npcId === npc.id
+      ) {
+        closeAnswerDetail();
+        return;
+      }
+
+      // 別キャラの詳細が開いていたら切り替える
+      openAnswerDetail(npc, card);
+    });
+
     answerListGrid.appendChild(card);
   });
 }
 
+/* =========================================================
+   答え一覧のキャラ詳細表示
+   ========================================================= */
+
+let answerDetailOverlay = null;
+
+
+// 詳細を開く
+function openAnswerDetail(npc, card) {
+  // 前の詳細を削除
+  closeAnswerDetail();
+
+  const overlay = document.createElement("div");
+  overlay.className = "answer-detail-overlay";
+  overlay.dataset.npcId = npc.id;
+
+  // 問題文
+  const question = document.createElement("div");
+  question.className = "answer-detail-question";
+  question.textContent = npc.question || "問題文なし";
+
+  overlay.appendChild(question);
+
+  // 画像
+  if (npc.image) {
+    const image = document.createElement("img");
+    image.className = "answer-detail-image";
+    image.src = npc.image;
+    image.alt = npc.name;
+
+    overlay.appendChild(image);
+  }
+
+  // 名前
+  const name = document.createElement("div");
+  name.className = "answer-detail-name";
+  name.textContent = npc.name;
+
+  overlay.appendChild(name);
+
+  // 閉じるボタン
+  const closeButton = document.createElement("button");
+  closeButton.className = "answer-detail-close";
+  closeButton.textContent = "閉じる";
+
+  closeButton.addEventListener("click", function(event) {
+    event.stopPropagation();
+    closeAnswerDetail();
+  });
+
+  overlay.appendChild(closeButton);
+
+  // 画面に追加
+  document.body.appendChild(overlay);
+
+  answerDetailOverlay = overlay;
+
+  // キャラカードの位置を取得
+  const rect = card.getBoundingClientRect();
+
+  // 最初はタップしたカードの近くに表示
+  let left = rect.left;
+  let top = rect.top;
+
+  // 詳細が画面右端からはみ出さないように調整
+  const overlayWidth = overlay.offsetWidth;
+  const overlayHeight = overlay.offsetHeight;
+
+  left = Math.min(
+    left,
+    window.innerWidth - overlayWidth - 12
+  );
+
+  left = Math.max(12, left);
+
+  // 画面下にはみ出す場合は上方向に表示
+  if (top + overlayHeight > window.innerHeight - 12) {
+    top = rect.bottom - overlayHeight;
+  }
+
+  top = Math.max(
+    12,
+    Math.min(top, window.innerHeight - overlayHeight - 12)
+  );
+
+  overlay.style.left = `${left}px`;
+  overlay.style.top = `${top}px`;
+}
+
+
+// 詳細を閉じる
+function closeAnswerDetail() {
+  if (answerDetailOverlay) {
+    answerDetailOverlay.remove();
+    answerDetailOverlay = null;
+  }
+}
+
+
+// 画面のどこをタップしても詳細を閉じる
+document.addEventListener("click", function() {
+  if (answerDetailOverlay) {
+    closeAnswerDetail();
+  }
+});
+
+
+// Escapeキーでも閉じる
+document.addEventListener("keydown", function(event) {
+  if (event.key === "Escape") {
+    closeAnswerDetail();
+  }
+});
 
 /* =========================================================
    タイトル画面
