@@ -280,9 +280,10 @@ h2 {
   flex-direction: column;
   align-items: stretch;
   justify-content: flex-start;
-  aspect-ratio: 1 / 1;
+  height: var(--npc-card-height, 110px);
   overflow: hidden;
   min-width: 0;
+  position: relative;
 }
 
 .npc-card:hover {
@@ -944,6 +945,23 @@ function prepareNpcData() {
   npcData.forEach((npc, index) => {
     npc.id = String(index);
   });
+}
+function setNpcCardHeight() {
+  const longestName = Math.max(
+    ...npcData.map(npc => [...npc.name].length)
+  );
+
+  const nameLines = Math.ceil(longestName / 5);
+
+  const cardHeight = Math.max(
+    110,
+    70 + nameLines * 14
+  );
+
+  document.documentElement.style.setProperty(
+    "--npc-card-height",
+    `${cardHeight}px`
+  );
 }
 
 
@@ -1633,6 +1651,7 @@ continueButton.addEventListener("click", continueGame);
    ========================================================= */
 
 prepareNpcData();
+setNpcCardHeight();
 updateTitleButtons();
 </script>
 
