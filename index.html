@@ -1120,13 +1120,14 @@ function handleCorrectAnswer(npc) {
   game.answered.push(npc.id);
   game.correct.push(npc.id);
 
-  // スキップリストから削除
   game.skipped = game.skipped.filter(id => id !== npc.id);
 
+  // 正解メッセージだけ表示
   feedback.textContent = "正解！";
   feedback.className = "feedback correct";
 
-  showQuestionImage(npc);
+  // 問題画面内の画像・名前は表示しない
+  questionImageWrap.classList.add("hidden");
 
   updateUI();
   saveGame();
@@ -1135,7 +1136,7 @@ function handleCorrectAnswer(npc) {
     if (!game || game.status !== "playing") return;
 
     chooseNextQuestion();
-  }, 900);
+  }, 300);
 }
 
 
