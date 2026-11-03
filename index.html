@@ -1,0 +1,1425 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>原神 NPCクイズ</title>
+
+<style>
+:root {
+  --bg: #10131b;
+  --panel: #1b202c;
+  --panel2: #252c3a;
+  --text: #f2f3f5;
+  --muted: #a8afbd;
+  --accent: #DDC37C;
+  --accent-dark: #a88a45;
+  --green: #65d69a;
+  --red: #ff7070;
+  --border: #343c4c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family:
+    -apple-system, BlinkMacSystemFont,
+    "Segoe UI", "Noto Sans JP", sans-serif;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+.hidden {
+  display: none !important;
+}
+
+#app {
+  width: min(1100px, 100%);
+  margin: 0 auto;
+  padding: 18px;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+h1, h2, h3, p {
+  margin-top: 0;
+}
+
+h1 {
+  color: var(--accent);
+  text-align: center;
+  font-size: clamp(25px, 5vw, 42px);
+  margin-bottom: 12px;
+}
+
+h2 {
+  color: var(--accent);
+  font-size: 23px;
+}
+
+.subtitle {
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.8;
+}
+
+.btn {
+  border: 1px solid var(--border);
+  background: var(--panel2);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 12px 18px;
+  min-height: 44px;
+  transition: .15s;
+}
+
+.btn:hover {
+  filter: brightness(1.12);
+}
+
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #252016;
+  font-weight: bold;
+}
+
+.btn.danger {
+  color: var(--red);
+  border-color: #7d3e47;
+}
+
+.btn.small {
+  padding: 8px 12px;
+  min-height: 38px;
+  font-size: 14px;
+}
+
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.title-logo {
+  text-align: center;
+  font-size: 58px;
+  margin: 12px 0;
+}
+
+.title-logo span {
+  color: var(--accent);
+}
+
+.title-description {
+  max-width: 650px;
+  margin: 0 auto 22px;
+  text-align: center;
+  color: var(--muted);
+  line-height: 1.9;
+}
+
+#titleScreen {
+  padding-top: 35px;
+}
+
+#titleScreen .panel {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.stat {
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  text-align: center;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+
+.stat-value {
+  font-size: clamp(18px, 3.5vw, 26px);
+  font-weight: bold;
+  color: var(--accent);
+}
+
+#timer.warning {
+  color: var(--red);
+}
+
+.progress-track {
+  height: 10px;
+  background: #090c12;
+  border-radius: 20px;
+  overflow: hidden;
+  margin: 12px 0 18px;
+}
+
+.progress-bar {
+  width: 0;
+  height: 100%;
+  background: var(--accent);
+  transition: width .2s;
+}
+
+.question-heading {
+  color: var(--muted);
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.question-text {
+  font-size: clamp(20px, 4vw, 30px);
+  line-height: 1.7;
+  margin-bottom: 18px;
+  white-space: pre-wrap;
+}
+
+.answer-form {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.answer-input {
+  min-width: 0;
+  flex: 1;
+  border: 1px solid var(--border);
+  background: #10141d;
+  color: white;
+  border-radius: 10px;
+  padding: 12px 14px;
+  outline: none;
+}
+
+.answer-input:focus {
+  border-color: var(--accent);
+}
+
+.feedback {
+  min-height: 25px;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+.feedback.correct {
+  color: var(--green);
+}
+
+.feedback.incorrect {
+  color: var(--red);
+}
+
+.question-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.section-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.npc-card {
+  min-width: 0;
+  position: relative;
+  border: 1px solid var(--border);
+  background: var(--panel2);
+  border-radius: 12px;
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
+  padding: 0;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.npc-card:hover {
+  border-color: var(--accent);
+}
+
+.npc-card.answered {
+  border-color: #4e9f79;
+}
+
+.npc-card.skipped {
+  border-color: var(--accent);
+}
+
+.npc-card .card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.npc-card .card-name {
+  width: 100%;
+  padding: 7px 3px;
+  font-size: 12px;
+  background: rgba(0, 0, 0, .75);
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.npc-card .card-placeholder {
+  color: var(--muted);
+  font-size: clamp(24px, 5vw, 40px);
+}
+
+.npc-card .card-status {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: bold;
+  background: #0c1119;
+  color: var(--green);
+}
+
+.npc-card.current {
+  border: 2px solid var(--accent);
+}
+
+.npc-card.current::after {
+  content: "出題中";
+  position: absolute;
+  left: 0;
+  top: 0;
+  background: var(--accent);
+  color: #211b0e;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 3px 5px;
+}
+
+.npc-card .card-name.unanswered {
+  color: var(--red);
+}
+
+.answer-image-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.answer-image {
+  max-width: 100%;
+  width: 300px;
+  max-height: 320px;
+  object-fit: contain;
+  border-radius: 12px;
+  background: #0b0e14;
+}
+
+.answer-image-name {
+  color: var(--accent);
+  font-weight: bold;
+  font-size: 20px;
+  text-align: center;
+}
+
+.result-score {
+  text-align: center;
+  font-size: clamp(32px, 8vw, 60px);
+  color: var(--accent);
+  font-weight: bold;
+}
+
+.result-percent {
+  text-align: center;
+  font-size: 20px;
+  color: var(--muted);
+}
+
+.answer-list-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.answer-list-card {
+  min-width: 0;
+  border: 1px solid var(--border);
+  background: var(--panel2);
+  border-radius: 10px;
+  overflow: hidden;
+  text-align: center;
+}
+
+.answer-list-card img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  display: block;
+}
+
+.answer-list-name {
+  padding: 8px 4px;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.answer-list-name.unanswered {
+  color: var(--red);
+}
+
+.legend {
+  color: var(--red);
+  font-size: 13px;
+  margin-top: 12px;
+}
+
+.footer-note {
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  margin: 18px 0;
+}
+
+@media (max-width: 700px) {
+  #app {
+    padding: 10px;
+  }
+
+  .panel {
+    padding: 14px;
+    border-radius: 12px;
+  }
+
+  .card-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 5px;
+  }
+
+  .npc-card {
+    border-radius: 7px;
+  }
+
+  .npc-card .card-name {
+    font-size: 10px;
+    padding: 4px 2px;
+  }
+
+  .npc-card .card-status {
+    width: 18px;
+    height: 18px;
+    font-size: 11px;
+  }
+
+  .answer-list-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .answer-list-name {
+    font-size: 11px;
+    padding: 6px 2px;
+  }
+
+  .answer-form {
+    flex-direction: column;
+  }
+
+  .answer-form .btn {
+    width: 100%;
+  }
+
+  .question-actions .btn {
+    flex: 1;
+  }
+
+  .title-logo {
+    font-size: 44px;
+  }
+}
+
+@media (max-width: 380px) {
+  .card-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+</style>
+</head>
+
+<body>
+<div id="app">
+
+  <!-- タイトル画面 -->
+  <section id="titleScreen">
+    <div class="panel">
+      <div class="title-logo">
+        <span>原神</span> NPCクイズ
+      </div>
+
+      <p class="title-description">
+        テイワットに登場するNPCの名前を当てよう！<br>
+        制限時間は10分。何人のNPCを当てられるかな？
+      </p>
+
+      <div class="btn-row">
+        <button class="btn primary" id="startButton">
+          クイズを始める
+        </button>
+
+        <button class="btn hidden" id="continueButton">
+          続きから始める
+        </button>
+      </div>
+
+      <p class="footer-note">
+        ※進行状況はこのブラウザに保存されます。
+      </p>
+    </div>
+  </section>
+
+  <!-- クイズ画面 -->
+  <section id="quizScreen" class="hidden">
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-label">残り時間</div>
+        <div class="stat-value" id="timer">10:00</div>
+      </div>
+
+      <div class="stat">
+        <div class="stat-label">正解数</div>
+        <div class="stat-value" id="score">0 / 0</div>
+      </div>
+
+      <div class="stat">
+        <div class="stat-label">正解率</div>
+        <div class="stat-value" id="accuracy">0%</div>
+      </div>
+    </div>
+
+    <div class="progress-track">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <div class="panel">
+      <div class="question-heading" id="questionHeading">
+        だーれだ？
+      </div>
+
+      <div class="question-text" id="questionText">
+        問題文
+      </div>
+
+      <form class="answer-form" id="answerForm">
+        <input
+          class="answer-input"
+          id="answerInput"
+          type="text"
+          placeholder="NPCの名前を入力"
+          autocomplete="off"
+          autocapitalize="off"
+        >
+
+        <button class="btn primary" type="submit">
+          回答する
+        </button>
+      </form>
+
+      <div class="feedback" id="feedback"></div>
+
+      <div class="answer-image-wrap hidden" id="questionImageWrap">
+        <img class="answer-image" id="questionImage" alt="NPC画像">
+        <div class="answer-image-name" id="questionImageName"></div>
+      </div>
+
+      <div class="question-actions">
+        <button class="btn small" id="showImageButton">
+          画像
+        </button>
+
+        <button class="btn small" id="skipButton">
+          スキップ
+        </button>
+
+        <button class="btn small danger" id="giveUpButton">
+          ギブアップ
+        </button>
+
+        <button class="btn small" id="pauseButton">
+          中断する
+        </button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="section-title">
+        <h2>NPC一覧</h2>
+        <span id="listInfo" class="subtitle"></span>
+      </div>
+
+      <p class="subtitle">
+        スキップしたNPCのカードを押すと、そのNPCの問題に戻れるよ。
+      </p>
+
+      <div class="card-grid" id="npcCardGrid"></div>
+    </div>
+  </section>
+
+  <!-- 結果画面 -->
+  <section id="resultScreen" class="hidden">
+    <div class="panel">
+      <h1 id="resultTitle">クイズ終了！</h1>
+
+      <div class="result-score" id="resultScore">0 / 0</div>
+      <div class="result-percent" id="resultPercent">正解率 0%</div>
+
+      <div class="btn-row">
+        <button class="btn primary" id="playAgainButton">
+          もう一度遊ぶ
+        </button>
+
+        <button class="btn" id="showAnswersButton">
+          答えを見る
+        </button>
+
+        <button class="btn" id="resultTitleButton">
+          タイトルに戻る
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 答え一覧 -->
+  <section id="answersScreen" class="hidden">
+    <div class="panel">
+      <div class="section-title">
+        <h2>NPCの答え一覧</h2>
+        <button class="btn small" id="backToResultButton">
+          結果に戻る
+        </button>
+      </div>
+
+      <div class="answer-list-grid" id="answerListGrid"></div>
+
+      <p class="legend">
+        ● 赤文字：未回答のNPC
+      </p>
+
+      <div class="btn-row">
+        <button class="btn primary" id="answersPlayAgainButton">
+          もう一度遊ぶ
+        </button>
+
+        <button class="btn" id="answersTitleButton">
+          タイトルに戻る
+        </button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* =========================================================
+   NPCデータ
+   name     : 正解として受け付ける名前
+   question : 問題文
+   image    : NPC画像URL
+   aliases  : 別名・表記ゆれ（必要な場合のみ）
+   ========================================================= */
+
+const npcData = [
+  {
+    name: "NPCの名前1",
+    question: "モンドで出会えるNPC。問題文をここに入力。",
+    image: "https://example.com/npc1.png",
+    aliases: []
+  },
+  {
+    name: "NPCの名前2",
+    question: "璃月に登場するNPC。問題文をここに入力。",
+    image: "https://example.com/npc2.png",
+    aliases: []
+  },
+  {
+    name: "NPCの名前3",
+    question: "稲妻に登場するNPC。問題文をここに入力。",
+    image: "https://example.com/npc3.png",
+    aliases: []
+  }
+];
+
+
+/* =========================================================
+   設定
+   ========================================================= */
+
+const QUIZ_TIME = 10 * 60;
+const SAVE_KEY = "genshin_npc_quiz_save_v1";
+
+
+/* =========================================================
+   状態
+   ========================================================= */
+
+let game = null;
+let timerInterval = null;
+let currentNpcId = null;
+let currentQuestionImageShown = false;
+
+
+/* =========================================================
+   DOM
+   ========================================================= */
+
+const titleScreen = document.getElementById("titleScreen");
+const quizScreen = document.getElementById("quizScreen");
+const resultScreen = document.getElementById("resultScreen");
+const answersScreen = document.getElementById("answersScreen");
+
+const startButton = document.getElementById("startButton");
+const continueButton = document.getElementById("continueButton");
+
+const timerElement = document.getElementById("timer");
+const scoreElement = document.getElementById("score");
+const accuracyElement = document.getElementById("accuracy");
+const progressBar = document.getElementById("progressBar");
+
+const questionHeading = document.getElementById("questionHeading");
+const questionText = document.getElementById("questionText");
+const answerInput = document.getElementById("answerInput");
+const answerForm = document.getElementById("answerForm");
+const feedback = document.getElementById("feedback");
+
+const questionImageWrap = document.getElementById("questionImageWrap");
+const questionImage = document.getElementById("questionImage");
+const questionImageName = document.getElementById("questionImageName");
+
+const showImageButton = document.getElementById("showImageButton");
+const skipButton = document.getElementById("skipButton");
+const giveUpButton = document.getElementById("giveUpButton");
+const pauseButton = document.getElementById("pauseButton");
+
+const npcCardGrid = document.getElementById("npcCardGrid");
+const listInfo = document.getElementById("listInfo");
+
+const resultTitle = document.getElementById("resultTitle");
+const resultScore = document.getElementById("resultScore");
+const resultPercent = document.getElementById("resultPercent");
+
+const answerListGrid = document.getElementById("answerListGrid");
+
+
+/* =========================================================
+   共通
+   ========================================================= */
+
+function shuffle(array) {
+  const arr = [...array];
+
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+
+  return arr;
+}
+
+function normalizeAnswer(text) {
+  return String(text || "")
+    .trim()
+    .replace(/\s+/g, "")
+    .replace(/[・･]/g, "")
+    .replace(/[！!？?]/g, "")
+    .toLowerCase();
+}
+
+function getNpc(id) {
+  return npcData.find(npc => npc.id === id);
+}
+
+function getAnsweredCount() {
+  return game ? game.answered.length : 0;
+}
+
+function getCorrectCount() {
+  return game ? game.correct.length : 0;
+}
+
+function getAccuracy() {
+  const answered = getAnsweredCount();
+
+  if (answered === 0) {
+    return 0;
+  }
+
+  return Math.round(getCorrectCount() / answered * 100);
+}
+
+function saveGame() {
+  if (!game) return;
+
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify(game));
+  } catch (error) {
+    console.warn("セーブできませんでした", error);
+  }
+}
+
+function loadGame() {
+  try {
+    const saved = localStorage.getItem(SAVE_KEY);
+
+    if (!saved) return null;
+
+    const parsed = JSON.parse(saved);
+
+    if (!parsed || !Array.isArray(parsed.order)) {
+      return null;
+    }
+
+    return parsed;
+  } catch (error) {
+    return null;
+  }
+}
+
+function deleteSave() {
+  localStorage.removeItem(SAVE_KEY);
+}
+
+function showScreen(screen) {
+  titleScreen.classList.add("hidden");
+  quizScreen.classList.add("hidden");
+  resultScreen.classList.add("hidden");
+  answersScreen.classList.add("hidden");
+
+  screen.classList.remove("hidden");
+}
+
+
+/* =========================================================
+   NPCデータの初期化
+   ========================================================= */
+
+function prepareNpcData() {
+  npcData.forEach((npc, index) => {
+    npc.id = String(index);
+  });
+}
+
+
+/* =========================================================
+   ゲーム開始
+   ========================================================= */
+
+function startNewGame() {
+  if (npcData.length === 0) {
+    alert("NPCデータが登録されていません。");
+    return;
+  }
+
+  prepareNpcData();
+
+  game = {
+    order: shuffle(npcData.map(npc => npc.id)),
+    answered: [],
+    correct: [],
+    skipped: [],
+    currentId: null,
+    remainingTime: QUIZ_TIME,
+    status: "playing",
+    lastSavedAt: Date.now()
+  };
+
+  deleteSave();
+
+  showScreen(quizScreen);
+  chooseNextQuestion();
+  startTimer();
+  updateUI();
+  saveGame();
+}
+
+function continueGame() {
+  const saved = loadGame();
+
+  if (!saved) {
+    startNewGame();
+    return;
+  }
+
+  prepareNpcData();
+
+  game = saved;
+
+  // NPCデータが変更された場合に備えて、現在のデータと照合
+  const availableIds = npcData.map(npc => npc.id);
+
+  game.order = game.order.filter(id => availableIds.includes(id));
+  game.answered = game.answered.filter(id => availableIds.includes(id));
+  game.correct = game.correct.filter(id => availableIds.includes(id));
+  game.skipped = game.skipped.filter(id => availableIds.includes(id));
+
+  // 中断中にページを閉じていた時間はカウントしない
+  game.status = "playing";
+
+  showScreen(quizScreen);
+  chooseNextQuestion();
+  startTimer();
+  updateUI();
+  saveGame();
+}
+
+
+/* =========================================================
+   問題選択
+   ========================================================= */
+
+function chooseNextQuestion() {
+  if (!game || game.status !== "playing") return;
+
+  // まだ回答していないNPCから選ぶ
+  const remaining = game.order.filter(id =>
+    !game.answered.includes(id)
+  );
+
+  if (remaining.length === 0) {
+    finishGame("all");
+    return;
+  }
+
+  // スキップしたNPCを優先して再出題
+  const skippedRemaining = remaining.filter(id =>
+    game.skipped.includes(id)
+  );
+
+  if (skippedRemaining.length > 0) {
+    currentNpcId = skippedRemaining[0];
+  } else {
+    currentNpcId = remaining[0];
+  }
+
+  game.currentId = currentNpcId;
+
+  currentQuestionImageShown = false;
+
+  questionImageWrap.classList.add("hidden");
+  feedback.textContent = "";
+  feedback.className = "feedback";
+  answerInput.value = "";
+
+  const npc = getNpc(currentNpcId);
+
+  if (!npc) {
+    finishGame("all");
+    return;
+  }
+
+  questionHeading.textContent = "だーれだ？";
+  questionText.textContent = npc.question || "このNPCは誰でしょう？";
+
+  answerInput.focus();
+
+  updateUI();
+  saveGame();
+}
+
+
+/* =========================================================
+   回答判定
+   ========================================================= */
+
+answerForm.addEventListener("submit", function(event) {
+  event.preventDefault();
+
+  if (!game || game.status !== "playing") return;
+  if (!currentNpcId) return;
+
+  const npc = getNpc(currentNpcId);
+
+  if (!npc) return;
+
+  const userAnswer = normalizeAnswer(answerInput.value);
+
+  if (!userAnswer) return;
+
+  const correctAnswers = [
+    npc.name,
+    ...(npc.aliases || [])
+  ].map(normalizeAnswer);
+
+  if (correctAnswers.includes(userAnswer)) {
+    handleCorrectAnswer(npc);
+  } else {
+    feedback.textContent = "不正解！もう一度考えてみよう。";
+    feedback.className = "feedback incorrect";
+    answerInput.select();
+  }
+});
+
+function handleCorrectAnswer(npc) {
+  if (game.answered.includes(npc.id)) return;
+
+  game.answered.push(npc.id);
+  game.correct.push(npc.id);
+
+  // スキップリストから削除
+  game.skipped = game.skipped.filter(id => id !== npc.id);
+
+  feedback.textContent = "正解！";
+  feedback.className = "feedback correct";
+
+  showQuestionImage(npc);
+
+  updateUI();
+  saveGame();
+
+  setTimeout(() => {
+    if (!game || game.status !== "playing") return;
+
+    chooseNextQuestion();
+  }, 900);
+}
+
+
+/* =========================================================
+   画像表示
+   ========================================================= */
+
+showImageButton.addEventListener("click", function() {
+  if (!currentNpcId) return;
+
+  const npc = getNpc(currentNpcId);
+
+  if (!npc) return;
+
+  showQuestionImage(npc);
+});
+
+function showQuestionImage(npc) {
+  if (!npc) return;
+
+  questionImageWrap.classList.remove("hidden");
+
+  if (npc.image) {
+    questionImage.src = npc.image;
+    questionImage.alt = npc.name;
+    questionImage.style.display = "block";
+  } else {
+    questionImage.removeAttribute("src");
+    questionImage.style.display = "none";
+  }
+
+  questionImageName.textContent = npc.name;
+  currentQuestionImageShown = true;
+}
+
+
+/* =========================================================
+   スキップ
+   ========================================================= */
+
+skipButton.addEventListener("click", function() {
+  if (!game || game.status !== "playing") return;
+  if (!currentNpcId) return;
+
+  if (!game.answered.includes(currentNpcId)) {
+    if (!game.skipped.includes(currentNpcId)) {
+      game.skipped.push(currentNpcId);
+    }
+  }
+
+  chooseNextQuestion();
+});
+
+
+/* =========================================================
+   ギブアップ
+   ========================================================= */
+
+giveUpButton.addEventListener("click", function() {
+  if (!game || game.status !== "playing") return;
+
+  const confirmGiveUp = confirm(
+    "クイズを終了して結果画面に進みますか？"
+  );
+
+  if (!confirmGiveUp) return;
+
+  finishGame("giveup");
+});
+
+
+/* =========================================================
+   中断
+   ========================================================= */
+
+pauseButton.addEventListener("click", function() {
+  if (!game || game.status !== "playing") return;
+
+  game.status = "paused";
+  stopTimer();
+  saveGame();
+
+  showScreen(titleScreen);
+  updateTitleButtons();
+});
+
+
+/* =========================================================
+   タイマー
+   ========================================================= */
+
+function startTimer() {
+  stopTimer();
+
+  if (!game || game.status !== "playing") return;
+
+  game.lastSavedAt = Date.now();
+
+  timerInterval = setInterval(() => {
+    if (!game || game.status !== "playing") return;
+
+    game.remainingTime--;
+
+    if (game.remainingTime <= 0) {
+      game.remainingTime = 0;
+      updateUI();
+      finishGame("time");
+      return;
+    }
+
+    updateUI();
+    saveGame();
+  }, 1000);
+}
+
+function stopTimer() {
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+}
+
+function formatTime(seconds) {
+  const minutes = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+
+  return `${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+}
+
+
+/* =========================================================
+   UI更新
+   ========================================================= */
+
+function updateUI() {
+  if (!game) return;
+
+  timerElement.textContent = formatTime(game.remainingTime);
+
+  timerElement.classList.toggle(
+    "warning",
+    game.remainingTime <= 60
+  );
+
+  scoreElement.textContent =
+    `${getCorrectCount()} / ${npcData.length}`;
+
+  accuracyElement.textContent =
+    `${getAccuracy()}%`;
+
+  const progress = npcData.length > 0
+    ? getAnsweredCount() / npcData.length * 100
+    : 0;
+
+  progressBar.style.width = `${progress}%`;
+
+  listInfo.textContent =
+    `${getAnsweredCount()} / ${npcData.length} 回答済み`;
+
+  renderNpcCards();
+}
+
+
+/* =========================================================
+   NPCカード
+   ========================================================= */
+
+function renderNpcCards() {
+  npcCardGrid.innerHTML = "";
+
+  game.order.forEach(id => {
+    const npc = getNpc(id);
+
+    if (!npc) return;
+
+    const answered = game.answered.includes(id);
+    const skipped = game.skipped.includes(id);
+    const current = currentNpcId === id;
+
+    const card = document.createElement("button");
+
+    card.className = "npc-card";
+
+    if (answered) {
+      card.classList.add("answered");
+    }
+
+    if (skipped) {
+      card.classList.add("skipped");
+    }
+
+    if (current) {
+      card.classList.add("current");
+    }
+
+    card.type = "button";
+
+    // 正解済みは名前と画像を表示
+    if (answered) {
+      if (npc.image) {
+        const img = document.createElement("img");
+        img.className = "card-image";
+        img.src = npc.image;
+        img.alt = npc.name;
+        card.appendChild(img);
+      } else {
+        const placeholder = document.createElement("div");
+        placeholder.className = "card-placeholder";
+        placeholder.textContent = "✓";
+        card.appendChild(placeholder);
+      }
+
+      const name = document.createElement("div");
+      name.className = "card-name";
+      name.textContent = npc.name;
+      card.appendChild(name);
+
+      const status = document.createElement("div");
+      status.className = "card-status";
+      status.textContent = "✓";
+      card.appendChild(status);
+
+    } else {
+      // 未回答カードは固定サイズのまま
+      const placeholder = document.createElement("div");
+      placeholder.className = "card-placeholder";
+      placeholder.textContent = "？";
+      card.appendChild(placeholder);
+    }
+
+    // カードを押すと、そのNPCの問題に戻る
+    card.addEventListener("click", function() {
+      if (!game || game.status !== "playing") return;
+      if (answered) return;
+
+      currentNpcId = id;
+      game.currentId = id;
+
+      // スキップ状態を解除
+      game.skipped = game.skipped.filter(skipId => skipId !== id);
+
+      currentQuestionImageShown = false;
+
+      questionImageWrap.classList.add("hidden");
+      feedback.textContent = "";
+      feedback.className = "feedback";
+      answerInput.value = "";
+
+      questionHeading.textContent = "だーれだ？";
+      questionText.textContent = npc.question || "このNPCは誰でしょう？";
+
+      updateUI();
+      saveGame();
+
+      answerInput.focus();
+    });
+
+    npcCardGrid.appendChild(card);
+  });
+}
+
+
+/* =========================================================
+   クイズ終了
+   ========================================================= */
+
+function finishGame(reason) {
+  if (!game) return;
+
+  stopTimer();
+
+  game.status = "finished";
+  game.finishReason = reason;
+
+  saveGame();
+
+  const correct = getCorrectCount();
+  const total = npcData.length;
+  const percent = total > 0
+    ? Math.round(correct / total * 100)
+    : 0;
+
+  if (reason === "all") {
+    resultTitle.textContent = "全問回答！";
+  } else if (reason === "time") {
+    resultTitle.textContent = "時間切れ！";
+  } else {
+    resultTitle.textContent = "クイズ終了！";
+  }
+
+  resultScore.textContent = `${correct} / ${total}`;
+  resultPercent.textContent = `正解率 ${percent}%`;
+
+  showScreen(resultScreen);
+}
+
+
+/* =========================================================
+   結果画面のボタン
+   ========================================================= */
+
+document.getElementById("playAgainButton").addEventListener("click", startNewGame);
+
+document.getElementById("resultTitleButton").addEventListener("click", function() {
+  showScreen(titleScreen);
+  updateTitleButtons();
+});
+
+document.getElementById("showAnswersButton").addEventListener("click", function() {
+  renderAnswerList();
+  showScreen(answersScreen);
+});
+
+document.getElementById("backToResultButton").addEventListener("click", function() {
+  showScreen(resultScreen);
+});
+
+document.getElementById("answersPlayAgainButton").addEventListener("click", startNewGame);
+
+document.getElementById("answersTitleButton").addEventListener("click", function() {
+  showScreen(titleScreen);
+  updateTitleButtons();
+});
+
+
+/* =========================================================
+   答え一覧
+   ========================================================= */
+
+function renderAnswerList() {
+  answerListGrid.innerHTML = "";
+
+  npcData.forEach(npc => {
+    const answered = game.correct.includes(npc.id);
+
+    const card = document.createElement("div");
+    card.className = "answer-list-card";
+
+    if (npc.image) {
+      const img = document.createElement("img");
+      img.src = npc.image;
+      img.alt = npc.name;
+      card.appendChild(img);
+    }
+
+    const name = document.createElement("div");
+    name.className = "answer-list-name";
+
+    if (!answered) {
+      name.classList.add("unanswered");
+    }
+
+    name.textContent = npc.name;
+
+    card.appendChild(name);
+    answerListGrid.appendChild(card);
+  });
+}
+
+
+/* =========================================================
+   タイトル画面
+   ========================================================= */
+
+function updateTitleButtons() {
+  const saved = loadGame();
+
+  const canContinue =
+    saved &&
+    saved.status !== "finished" &&
+    saved.status !== "giveup" &&
+    saved.status !== "time";
+
+  continueButton.classList.toggle("hidden", !canContinue);
+}
+
+startButton.addEventListener("click", startNewGame);
+
+continueButton.addEventListener("click", continueGame);
+
+
+/* =========================================================
+   初期化
+   ========================================================= */
+
+prepareNpcData();
+updateTitleButtons();
+</script>
+
+</body>
+</html>
