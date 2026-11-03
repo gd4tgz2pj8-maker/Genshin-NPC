@@ -877,13 +877,13 @@ function getCorrectCount() {
 }
 
 function getAccuracy() {
-  const answered = getAnsweredCount();
-
-  if (answered === 0) {
+  if (npcData.length === 0) {
     return 0;
   }
 
-  return Math.round(getCorrectCount() / answered * 100);
+  return Math.round(
+    getCorrectCount() / npcData.length * 100
+  );
 }
 
 function saveGame() {
@@ -1019,13 +1019,13 @@ function chooseNextQuestion() {
     return;
   }
 
-  // スキップしたNPCを優先して再出題
-  const skippedRemaining = remaining.filter(id =>
-    game.skipped.includes(id)
+  // 現在のNPC以外から次の問題を選ぶ
+  const next = remaining.filter(id =>
+    id !== currentNpcId
   );
 
-  if (skippedRemaining.length > 0) {
-    currentNpcId = skippedRemaining[0];
+  if (next.length > 0) {
+    currentNpcId = next[0];
   } else {
     currentNpcId = remaining[0];
   }
