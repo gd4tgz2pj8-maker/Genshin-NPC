@@ -423,7 +423,16 @@ h2 {
 .legend {
   color: var(--red);
   font-size: 13px;
-  margin-top: 12px;
+  margin: 12px 0;
+  text-align: center;
+}
+
+.legend-dot {
+  color: var(--red);
+}
+
+.legend-text {
+  color: var(--text);
 }
 
 .footer-note {
@@ -715,21 +724,21 @@ h2 {
   画面のどこかをタップすると閉じます。
 </p>
 
-      <div class="answer-list-grid" id="answerListGrid"></div>
+<div class="btn-row">
+  <button class="btn primary" id="answersPlayAgainButton">
+    もう一度遊ぶ
+  </button>
 
-      <p class="legend">
-        ● 赤文字：未回答のNPC
-      </p>
+  <button class="btn" id="answersTitleButton">
+    タイトルに戻る
+  </button>
+</div>
 
-      <div class="btn-row">
-        <button class="btn primary" id="answersPlayAgainButton">
-          もう一度遊ぶ
-        </button>
+<p class="legend">
+  <span class="legend-dot">●</span>：<span class="legend-text">未回答</span>
+</p>
 
-        <button class="btn" id="answersTitleButton">
-          タイトルに戻る
-        </button>
-      </div>
+<div class="answer-list-grid" id="answerListGrid"></div>
     </div>
   </section>
 
@@ -1156,12 +1165,6 @@ skipButton.addEventListener("click", function() {
 
 giveUpButton.addEventListener("click", function() {
   if (!game || game.status !== "playing") return;
-
-  const confirmGiveUp = confirm(
-    "クイズを終了して結果画面に進みますか？"
-  );
-
-  if (!confirmGiveUp) return;
 
   finishGame("giveup");
 });
