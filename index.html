@@ -1466,19 +1466,9 @@ function renderAnswerList() {
   // 詳細表示が残っていたら削除
   closeAnswerDetail();
 
-  npcData.forEach(npc => {
-    const answered = game.correct.includes(npc.id);
-
-    const card = document.createElement("div");
-    card.className = "answer-list-card";
-    card.style.cursor = "pointer";
-
-    if (npc.image) {
-      const img = document.createElement("img");
-      img.src = npc.image;
-      img.alt = npc.name;
-      card.appendChild(img);
-    }
+  game.order.forEach(id => {
+  const npc = getNpc(id);
+  if (!npc) return;
 
     const name = document.createElement("div");
     name.className = "answer-list-name";
